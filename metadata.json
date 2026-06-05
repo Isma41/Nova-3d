@@ -1,0 +1,6 @@
+{
+  "name": "Nova3D - Diseñador 3D con IA",
+  "description": "Una potente herramienta para diseñar objetos 3D y convertir imágenes en modelos tridimensionales utilizando inteligencia artificial.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

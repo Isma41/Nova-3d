@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net: Deny all by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(resourceData) {
+      return isSignedIn() && resourceData.ownerId == request.auth.uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidScene(data) {
+      return data.name is string && data.name.size() <= 100 &&
+             data.objects is list && data.objects.size() <= 1000 &&
+             data.ownerId == request.auth.uid &&
+             data.updatedAt == request.time;
+    }
+
+    // Scene rules
+    match /scenes/{sceneId} {
+      allow get: if isOwner(resource.data);
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      
+      allow create: if isSignedIn() && 
+                      isValidId(sceneId) &&
+                      isValidScene(request.resource.data) &&
+                      request.resource.data.keys().hasAll(['name', 'objects', 'updatedAt', 'ownerId']) &&
+                      request.resource.data.keys().size() == 4;
+                      
+      allow update: if isOwner(resource.data) &&
+                      isValidScene(request.resource.data) &&
+                      request.resource.data.ownerId == resource.data.ownerId &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'objects', 'updatedAt']);
+                      
+      allow delete: if isOwner(resource.data);
+    }
+  }
+}

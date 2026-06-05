@@ -1,0 +1,22 @@
+{
+  "entities": {
+    "Scene": {
+      "title": "3D Scene",
+      "description": "A collection of 3D objects forming a scene",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the scene" },
+        "objects": { "type": "array", "description": "Array of scene object data" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of last update" },
+        "ownerId": { "type": "string", "description": "UID of the owner" }
+      },
+      "required": ["name", "objects", "updatedAt", "ownerId"]
+    }
+  },
+  "firestore": {
+    "/scenes/{sceneId}": {
+      "schema": "Scene",
+      "description": "Storage for user-created 3D projects"
+    }
+  }
+}
